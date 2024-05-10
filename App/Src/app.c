@@ -1,4 +1,4 @@
-/*
+ /*
  * app.c
  *
  *  Created on: Feb 5, 2024
@@ -179,50 +179,75 @@ void App()
 {
 HAL_GPIO_WritePin(DEBUG_LED1_GPIO_Port, DEBUG_LED1_Pin, 1);
 
+Led_Matrix_Set_All();
+HAL_Delay(1000);
+Led_Matrix_Clear_All();
+HAL_Delay(100);
+
+HAL_GPIO_WritePin(KEY_COL1_GPIO_Port, KEY_COL1_Pin, GPIO_PIN_RESET);
+HAL_GPIO_WritePin(KEY_COL2_GPIO_Port, KEY_COL2_Pin, GPIO_PIN_RESET);
+HAL_GPIO_WritePin(KEY_COL3_GPIO_Port, KEY_COL3_Pin, GPIO_PIN_RESET);
+HAL_GPIO_WritePin(KEY_COL4_GPIO_Port, KEY_COL4_Pin, GPIO_PIN_RESET);
+
+
 	while(1)
 	{
 		HAL_GPIO_TogglePin(DEBUG_LED2_GPIO_Port, DEBUG_LED2_Pin);
 		for(uint8_t i = 0; i< KEYS_AMOUNT ; i++)
 		{
 			switch(keys[i].keyState)
-			{
-				case IDLE:
-					keys[i].isPressed = HAL_GPIO_ReadPin(keys[i].keyPos.row_port, keys[i].keyPos.row_pin);
-					if(GPIO_PIN_SET == keys[i].isPressed )
-					{
-						keys[i].keyState = DEBOUNCE_PRESSED;
-						keys[i].keyTick = HAL_GetTick();
-					}
-					break;
+//			{
+//				case IDLE:
+//					keys[i].isPressed = HAL_GPIO_ReadPin(keys[i].keyPos.row_port, keys[i].keyPos.row_pin);
+//					if(GPIO_PIN_SET == keys[i].isPressed )
+//					{
+//						keys[i].keyState = DEBOUNCE_PRESSED;
+//						keys[i].keyTick = HAL_GetTick();
+//					}
+//					break;
+//
+//				case DEBOUNCE_PRESSED:
+//					if(AppTimeElapsed(&keys[i].keyTick, DEBOUNCE_TIME))
+//						keys[i].keyState = PRESSED;
+//					break;
+//
+//				case PRESSED:
+//					if(HAL_GPIO_ReadPin(keys[i].keyPos.row_port, keys[i].keyPos.row_pin))
+//					{
+//						//send message
+//						USBKeyboardWriteMessage(&hUsbDeviceFS, &keys[i].usbMessage);
+//						// light led
+//						Led_Matrix_Set(&keys[i].ledPos);
+//						keys[i].ledTick = HAL_GetTick();
+//					}
+//					else //The button has been released
+//					{
+//						keys[i].keyState = DEBOUNCE_DEPRESSED;
+//						keys[i].keyTick = HAL_GetTick();
+//					}
+//					break;
+//
+//				case DEBOUNCE_DEPRESSED:
+//					if(AppTimeElapsed(&keys[i].keyTick, DEBOUNCE_TIME))
+//						keys[i].keyState = IDLE;
+//					break;
+//			}
+//			if(AppTimeElapsed(&keys[i].keyTick, LED_DELAY))
+//				Led_Matrix_Reset(&keys[i].ledPos);
 
-				case DEBOUNCE_PRESSED:
-					if(AppTimeElapsed(&keys[i].keyTick, DEBOUNCE_TIME))
-						keys[i].keyState = PRESSED;
-					break;
 
-				case PRESSED:
-					if(HAL_GPIO_ReadPin(keys[i].keyPos.row_port, keys[i].keyPos.row_pin))
-					{
-						//send message
-						USBKeyboardWriteMessage(&hUsbDeviceFS, &keys[i].usbMessage);
-						// light led
-						Led_Matrix_Set(&keys[i].ledPos);
-						keys[i].ledTick = HAL_GetTick();
-					}
-					else //The button has been released
-					{
-						keys[i].keyState = DEBOUNCE_DEPRESSED;
-						keys[i].keyTick = HAL_GetTick();
-					}
-					break;
+			HAL_Delay(50);
+			if(HAL_GPIO_ReadPin(&keys[i].keyPos.row_port, &keys[i].keyPos.row_pin))
+				USBKeyboardWriteMessage(&hUsbDeviceFS, &keys[i].usbMessage);
+			Led_Matrix_Set(&keys[i].ledPos);
 
-				case DEBOUNCE_DEPRESSED:
-					if(AppTimeElapsed(&keys[i].keyTick, DEBOUNCE_TIME))
-						keys[i].keyState = IDLE;
-					break;
-			}
-			if(AppTimeElapsed(&keys[i].keyTick, LED_DELAY))
-				Led_Matrix_Reset(&keys[i].ledPos);
+			HAL_Delay(50);
+//
+			//HAL_GPIO_WritePin(keys[i].keyPos.column_port, keys[i].keyPos.column_pin, GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(&keys.keyPos.column_port,&keys.keyPos.column_pin, GPIO_PIN_SET);
+			Led_Matrix_Clear_All();
+
+
 		}
 	}
 }
